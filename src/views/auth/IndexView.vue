@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 import type { AxiosError } from 'axios'
 import { SweetAlertUtils } from '@/utils/sweetalert'
 import { FormatErrors } from '@/utils/format-errors'
+import { useRouter } from 'vue-router'
 
 interface Form {
   email: string
@@ -19,6 +20,7 @@ interface Validation {
   errors: Record<string, string[]>
 }
 
+const router = useRouter()
 const authStore = useAuthStore()
 const validation: Ref<Validation | null> = ref(null)
 const isLoading: Ref<boolean> = ref(false)
@@ -31,6 +33,9 @@ const send = async (): Promise<void> => {
   try {
     isLoading.value = true
     await authStore.login(form)
+    router.push({
+      name: 'meme_type.index',
+    })
   } catch (error) {
     const err = error as AxiosError
     if (err.response?.status === 400) {
