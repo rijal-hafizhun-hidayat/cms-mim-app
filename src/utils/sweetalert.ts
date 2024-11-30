@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2'
+import Swal, { type SweetAlertResult } from 'sweetalert2'
 
 export class SweetAlertUtils {
   static errorAlert(message: string) {
@@ -16,6 +16,18 @@ export class SweetAlertUtils {
       text: message,
       icon: 'success',
       confirmButtonText: 'OK',
+    })
+  }
+
+  static showConfirmationDialog = async (text: string): Promise<SweetAlertResult> => {
+    return await Swal.fire({
+      title: 'Are you sure?',
+      text: text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
     })
   }
 }
