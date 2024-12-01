@@ -196,7 +196,9 @@ const morePost = async () => {
               :taggable="true"
             ></Multiselect>
           </div>
-          <div class="my-auto"><PrimaryButton type="submit">search</PrimaryButton></div>
+          <div class="my-auto flex justify-end sm:justify-start">
+            <PrimaryButton type="submit">search</PrimaryButton>
+          </div>
         </form>
       </div>
     </div>
