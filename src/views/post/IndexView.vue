@@ -4,6 +4,7 @@ import PrimaryButton from '@/components/base/PrimaryButton.vue'
 import BadgePost from '@/components/post/BadgePost.vue'
 import DangerButton from '@/components/base/DangerButton.vue'
 import TextInput from '@/components/base/TextInput.vue'
+import CursorPagination from '@/components/post/CursorPagination.vue'
 import Multiselect from 'vue-multiselect'
 import { onMounted, reactive, ref, type Ref } from 'vue'
 import type { AxiosError, AxiosResponse } from 'axios'
@@ -64,6 +65,7 @@ interface FormSearchPost {
 
 const router = useRouter()
 const posts: Ref<PostWithPostTypesAndPostFile[]> = ref([])
+const cursorPagination: Ref<number> = ref(0)
 const memeTypes: Ref<MemeType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
 const isLoadingMultiSelect: Ref<boolean> = ref(false)
@@ -76,9 +78,10 @@ onMounted(async () => {
   try {
     isLoading.value = true
     isLoadingMultiSelect.value = true
+    cursorPagination.value = 5
     const result: AxiosResponse<Fetch> = await api.get<Fetch>('post', {
       params: {
-        cursor: 5,
+        cursor: cursorPagination.value,
       },
     })
     const resultMemeTypes: AxiosResponse<Fetch> = await api.get<Fetch>('meme_type')
@@ -123,11 +126,30 @@ const toPostShow = (postId: number) => {
 
 const searchPost = async () => {
   try {
+    cursorPagination.value = 5
     const result: AxiosResponse<Fetch> = await api.get<Fetch>('post', {
       params: {
         search: formSearchPost.search,
         meme_types: formSearchPost.meme_types as MemeType[],
-        cursor: 5,
+        cursor: cursorPagination.value,
+      },
+    })
+
+    console.log(result)
+    posts.value = result.data.data as PostWithPostTypesAndPostFile[]
+  } catch (error) {
+    const err = error as AxiosError
+    console.log(err)
+  }
+}
+
+const morePost = async () => {
+  try {
+    const result: AxiosResponse<Fetch> = await api.get<Fetch>('post', {
+      params: {
+        search: formSearchPost.search,
+        meme_types: formSearchPost.meme_types as MemeType[],
+        cursor: (cursorPagination.value += 5),
       },
     })
 
@@ -236,5 +258,6 @@ const searchPost = async () => {
         </table>
       </div>
     </div>
+    <CursorPagination @click="morePost()" />
   </DashboardLayout>
 </template>
