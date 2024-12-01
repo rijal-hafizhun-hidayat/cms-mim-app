@@ -2,7 +2,8 @@
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import PrimaryButton from '@/components/base/PrimaryButton.vue'
 import DangerButton from '@/components/base/DangerButton.vue'
-import { onMounted, ref, type Ref } from 'vue'
+import TextInput from '@/components/base/TextInput.vue'
+import { onMounted, reactive, ref, type Ref } from 'vue'
 import type { AxiosError, AxiosResponse } from 'axios'
 import api from '@/plugins/api'
 import { Timestamp } from '@/utils/timestamp'
@@ -22,10 +23,16 @@ interface MemeTypes {
   text_color: string
   updated_at: Date
 }
+interface Search {
+  name: string
+}
 
 const router = useRouter()
 const isLoading: Ref<boolean> = ref(false)
 const memeTypes: Ref<MemeTypes[]> = ref([])
+const search: Search = reactive({
+  name: '',
+})
 
 onMounted(async () => {
   try {
@@ -71,6 +78,20 @@ const toMemeTypeShowView = (memeTypeId: number) => {
     },
   })
 }
+
+const searchMemeTypes = async () => {
+  try {
+    const result: AxiosResponse<Fetch> = await api.get<Fetch>('meme_type', {
+      params: {
+        name: search.name,
+      },
+    })
+    memeTypes.value = result.data.data as MemeTypes[]
+  } catch (error) {
+    const err = error as AxiosError
+    console.log(err)
+  }
+}
 </script>
 <template>
   <DashboardLayout>
@@ -84,6 +105,23 @@ const toMemeTypeShowView = (memeTypeId: number) => {
         </div>
       </div>
     </template>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white mt-10 px-4 py-6 rounded shadow-md overflow-x-auto">
+        <form @submit.prevent="searchMemeTypes()" class="grid grid-rows-1 sm:grid-cols-2 gap-3">
+          <div>
+            <TextInput
+              v-model="search.name"
+              placeholder="find name meme type"
+              class="block w-full"
+            />
+          </div>
+          <div class="my-auto flex justify-end sm:justify-start">
+            <PrimaryButton type="submit">search</PrimaryButton>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white mt-10 px-4 py-6 rounded shadow-md overflow-x-auto">
