@@ -3,7 +3,9 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import PrimaryButton from '@/components/base/PrimaryButton.vue'
 import BadgePost from '@/components/post/BadgePost.vue'
 import DangerButton from '@/components/base/DangerButton.vue'
-import { onMounted, ref, type Ref } from 'vue'
+import TextInput from '@/components/base/TextInput.vue'
+import Multiselect from 'vue-multiselect'
+import { onMounted, reactive, ref, type Ref } from 'vue'
 import type { AxiosError, AxiosResponse } from 'axios'
 import api from '@/plugins/api'
 import { Timestamp } from '@/utils/timestamp'
@@ -13,7 +15,7 @@ import { SweetAlertUtils } from '@/utils/sweetalert'
 interface Fetch {
   statusCode: number
   message: string
-  data: PostWithPostTypesAndPostFile[] | Post
+  data: PostWithPostTypesAndPostFile[] | Post | MemeType[]
 }
 interface Post {
   content: string
@@ -55,22 +57,41 @@ interface MemeType {
   text_color: string
   updated_at: Date
 }
+interface FormSearchPost {
+  search: string
+  meme_types: MemeType[]
+}
 
 const router = useRouter()
 const posts: Ref<PostWithPostTypesAndPostFile[]> = ref([])
+const memeTypes: Ref<MemeType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
+const isLoadingMultiSelect: Ref<boolean> = ref(false)
+const formSearchPost: FormSearchPost = reactive({
+  search: '',
+  meme_types: [],
+})
 
 onMounted(async () => {
   try {
     isLoading.value = true
-    const result: AxiosResponse<Fetch> = await api.get<Fetch>('post')
+    isLoadingMultiSelect.value = true
+    const result: AxiosResponse<Fetch> = await api.get<Fetch>('post', {
+      params: {
+        cursor: 5,
+      },
+    })
+    const resultMemeTypes: AxiosResponse<Fetch> = await api.get<Fetch>('meme_type')
     posts.value = result.data.data as PostWithPostTypesAndPostFile[]
+    memeTypes.value = resultMemeTypes.data.data as MemeType[]
     console.log(posts.value)
+    console.log(memeTypes.value)
   } catch (error) {
     const err = error as AxiosError
     console.log(err)
   } finally {
     isLoading.value = false
+    isLoadingMultiSelect.value = false
   }
 })
 
@@ -99,6 +120,24 @@ const toPostShow = (postId: number) => {
     },
   })
 }
+
+const searchPost = async () => {
+  try {
+    const result: AxiosResponse<Fetch> = await api.get<Fetch>('post', {
+      params: {
+        search: formSearchPost.search,
+        meme_types: formSearchPost.meme_types as MemeType[],
+        cursor: 5,
+      },
+    })
+
+    console.log(result)
+    posts.value = result.data.data as PostWithPostTypesAndPostFile[]
+  } catch (error) {
+    const err = error as AxiosError
+    console.log(err)
+  }
+}
 </script>
 <template>
   <DashboardLayout>
@@ -112,6 +151,33 @@ const toPostShow = (postId: number) => {
         </div>
       </div>
     </template>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white mt-10 px-4 py-6 rounded shadow-md">
+        <form @submit.prevent="searchPost()" class="grid grid-rows-1 sm:grid-cols-3 gap-3">
+          <div>
+            <TextInput v-model="formSearchPost.search" class="block w-full" />
+          </div>
+          <div>
+            <Multiselect
+              :close-on-select="false"
+              :clear-on-select="false"
+              :disabled="isLoadingMultiSelect"
+              class="block w-full"
+              v-model="formSearchPost.meme_types"
+              tag-placeholder="Add this as new tag"
+              placeholder="Search or add a tag"
+              label="name"
+              track-by="id"
+              :options="memeTypes"
+              :multiple="true"
+              :taggable="true"
+            ></Multiselect>
+          </div>
+          <div class="my-auto"><PrimaryButton type="submit">search</PrimaryButton></div>
+        </form>
+      </div>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white mt-10 px-4 py-6 rounded shadow-md overflow-x-auto">

@@ -87,6 +87,7 @@ const getUploadData = (dataFile: FileUpload) => {
 }
 
 const send = async () => {
+  console.log(form.meme_types)
   try {
     const result: AxiosResponse<Fetch> = await api.post<Fetch>('post', {
       name: form.name,
