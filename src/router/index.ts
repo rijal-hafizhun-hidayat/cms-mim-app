@@ -9,6 +9,9 @@ import PostIndexView from '@/views/post/IndexView.vue'
 import PostCreateView from '@/views/post/CreateView.vue'
 import PostShowView from '@/views/post/ShowView.vue'
 import ErrorUnauthorizedView from '@/views/error/UnauthorizedView.vue'
+import RoleIndexView from '@/views/role/IndexView.vue'
+import RoleCreateView from '@/views/role/CreateView.vue'
+import RoleShowView from '@/views/role/ShowView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { SweetAlertUtils } from '@/utils/sweetalert'
 
@@ -61,6 +64,30 @@ const router = createRouter({
           path: ':postId',
           name: 'post.show',
           component: PostShowView,
+        },
+      ],
+      meta: {
+        requiresAuth: true,
+        requiresRoles: ['admin'],
+      },
+    },
+    {
+      path: '/role',
+      children: [
+        {
+          path: '',
+          name: 'role.index',
+          component: RoleIndexView,
+        },
+        {
+          path: 'create',
+          name: 'role.create',
+          component: RoleCreateView,
+        },
+        {
+          path: ':roleId',
+          name: 'role.show',
+          component: RoleShowView,
         },
       ],
       meta: {
