@@ -12,6 +12,7 @@ import ErrorUnauthorizedView from '@/views/error/UnauthorizedView.vue'
 import RoleIndexView from '@/views/role/IndexView.vue'
 import RoleCreateView from '@/views/role/CreateView.vue'
 import RoleShowView from '@/views/role/ShowView.vue'
+import FeedbackIndexView from '@/views/feedback/IndexView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { SweetAlertUtils } from '@/utils/sweetalert'
 
@@ -94,6 +95,16 @@ const router = createRouter({
         requiresAuth: true,
         requiresRoles: ['admin'],
       },
+    },
+    {
+      path: '/feedback',
+      children: [
+        {
+          path: '',
+          name: 'feedback.index',
+          component: FeedbackIndexView,
+        },
+      ],
     },
     {
       path: '/unauthorized',
