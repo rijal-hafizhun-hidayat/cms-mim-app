@@ -1,4 +1,5 @@
 import './assets/style.css'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
