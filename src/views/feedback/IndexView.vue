@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
+import TextInput from '@/components/base/TextInput.vue'
+import PrimaryButton from '@/components/base/PrimaryButton.vue'
 import api from '@/plugins/api'
 import { Timestamp } from '@/utils/timestamp'
 import type { AxiosError, AxiosResponse } from 'axios'
-import { onMounted, ref, type Ref } from 'vue'
+import { onMounted, reactive, ref, type Ref } from 'vue'
 
 interface Fetch {
   statusCode: number
@@ -16,9 +18,15 @@ interface Feedback {
   created_at: Date
   updated_at: Date
 }
+interface Search {
+  feedback: string
+}
 
 const feedbacks: Ref<Feedback[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
+const search: Search = reactive({
+  feedback: '',
+})
 
 onMounted(async () => {
   try {
@@ -32,6 +40,24 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const searchFeedback = async () => {
+  try {
+    isLoading.value = true
+    const result: AxiosResponse<Fetch> = await api.get<Fetch>('feedback', {
+      params: {
+        feedback: search.feedback,
+      },
+    })
+
+    feedbacks.value = result.data.data
+  } catch (error) {
+    const err = error as AxiosError
+    console.log(err)
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 <template>
   <DashboardLayout>
@@ -42,6 +68,19 @@ onMounted(async () => {
         </div>
       </div>
     </template>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white mt-10 px-4 py-6 rounded shadow-md overflow-x-auto">
+        <form @submit.prevent="searchFeedback()" class="grid grid-rows-1 sm:grid-cols-2 gap-3">
+          <div>
+            <TextInput v-model="search.feedback" placeholder="find feedback" class="block w-full" />
+          </div>
+          <div class="my-auto flex justify-end sm:justify-start">
+            <PrimaryButton type="submit">search</PrimaryButton>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white mt-10 px-4 py-6 rounded shadow-md overflow-x-auto">
