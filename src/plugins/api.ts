@@ -4,7 +4,7 @@ import 'nprogress/nprogress.css'
 import router from '@/router'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/admin',
+  baseURL: import.meta.env.VITE_BASE_URL_API,
   withCredentials: true,
 })
 
