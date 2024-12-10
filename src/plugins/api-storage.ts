@@ -4,7 +4,7 @@ import 'nprogress/nprogress.css'
 import router from '@/router'
 
 const apiStorage = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_BASE_URL_API_STORAGE,
   withCredentials: true,
 })
 
