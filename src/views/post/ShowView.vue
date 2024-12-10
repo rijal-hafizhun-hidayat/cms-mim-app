@@ -196,7 +196,7 @@ const send = async () => {
           <div>
             <InputLabel>Upload Photo Profile</InputLabel>
             <FileUpload
-              :maxSize="2"
+              :maxSize="7"
               :accept="'png,jpg,jpeg,mkv,mp4'"
               class="block mt-1 w-full"
               @file-upload="getUploadData"
